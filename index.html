@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productivity OS | Next-Gen Task Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="intro-screen" class="active">
+        <div class="intro-content">
+            <h1 class="intro-title glitch-text" data-text="PRODUCTIVITY OS">PRODUCTIVITY OS</h1>
+            <p class="intro-subtitle fade-in-delay">Organize. Focus. Achieve.</p>
+            <div class="intro-loader">
+                <div class="loader-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+    <div id="app-container" class="hidden">
+        
+        <aside class="sidebar glass-panel">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <i class="ph-fill ph-hexagon brand-icon"></i>
+                    <h2>Nexus OS</h2>
+                </div>
+            </div>
+
+            <div class="user-profile" id="profile-container">
+                <div class="avatar-container">
+                    <img src="https://api.dicebear.com/7.x/notionists/svg?seed=User&backgroundColor=transparent" alt="User Avatar" class="user-avatar" id="avatar-img">
+                    <div class="level-badge" title="Current Level">Lvl <span id="user-level">1</span></div>
+                </div>
+                <div class="user-info">
+                    <h3 class="user-name" id="display-name">Guest User</h3>
+                    <div class="xp-bar-container" title="XP Progress">
+                        <div class="xp-bar" id="xp-progress" style="width: 0%;"></div>
+                    </div>
+                    <span class="xp-text">Next Level: <span id="xp-needed">500</span> XP</span>
+                </div>
+            </div>
+
+            <nav class="main-nav">
+                <p class="nav-label">Main Menu</p>
+                <button class="nav-item active" data-target="dashboard-view"><i class="ph ph-squares-four"></i> Dashboard</button>
+                <button class="nav-item" data-target="calendar-view"><i class="ph ph-calendar-blank"></i> Calendar</button>
+                <button class="nav-item" data-target="focus-view"><i class="ph ph-target"></i> Focus Mode</button>
+            </nav>
+
+            <div class="sidebar-categories">
+                <p class="nav-label">Categories</p>
+                <ul id="category-list" class="category-list">
+                    <li class="category-item active" data-filter="All"><span class="cat-dot" style="background: var(--primary);"></span> All Tasks <span class="cat-count" id="count-all-cat">0</span></li>
+                    <li class="category-item" data-filter="Work"><span class="cat-dot" style="background: var(--work);"></span> Work <span class="cat-count" id="count-work-cat">0</span></li>
+                    <li class="category-item" data-filter="Personal"><span class="cat-dot" style="background: var(--personal);"></span> Personal <span class="cat-count" id="count-personal-cat">0</span></li>
+                    <li class="category-item" data-filter="Health"><span class="cat-dot" style="background: var(--health);"></span> Health <span class="cat-count" id="count-health-cat">0</span></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-header glass-panel">
+                <div class="greeting-container">
+                    <h2 id="greeting-text">Good morning.</h2>
+                    <p class="date-display" id="current-date">Loading date...</p>
+                </div>
+
+                <div class="global-search">
+                    <i class="ph ph-magnifying-glass search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search tasks or tags...">
+                </div>
+
+                <div class="header-actions">
+                    <div class="streak-counter tooltip-trigger" title="Current Streak">
+                        <i class="ph-fill ph-fire streak-icon"></i>
+                        <span id="streak-count">0</span>
+                    </div>
+                    <button id="theme-toggle" class="icon-btn" aria-label="Toggle Theme"><i class="ph ph-sun"></i></button>
+                    <button id="main-add-task-btn" class="btn-primary glow-effect"><i class="ph ph-plus-circle"></i> New Task</button>
+                </div>
+            </header>
+
+            <section id="dashboard-view" class="app-view active">
+                <div class="ai-insight-banner glass-panel">
+                    <div class="insight-icon"><i class="ph-fill ph-sparkle"></i></div>
+                    <div class="insight-content">
+                        <h4>System Insight</h4>
+                        <p id="ai-insight-text">Welcome to Nexus OS. Add your first task to begin organizing your day.</p>
+                    </div>
+                </div>
+
+                <div class="metrics-grid premium-stats">
+                    <div class="stat-box">
+                        <span class="stat-label">Total Matches</span>
+                        <span class="stat-value" id="stat-total">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Pending</span>
+                        <span class="stat-value text-blue" id="metric-pending">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Completed</span>
+                        <span class="stat-value text-yellow" id="metric-completed">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Overdue</span>
+                        <span class="stat-value text-magenta" id="metric-overdue">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Productivity Score</span>
+                        <span class="stat-value text-muted" id="metric-score">0%</span>
+                    </div>
+                </div>
+
+                <div class="board-controls">
+                    <h3 class="section-title">My Tasks</h3>
+                    <div class="filters">
+                        <button id="clear-all-btn" class="btn-secondary small danger" style="border-color: var(--critical); color: var(--critical);">Clear All Data</button>
+                    </div>
+                </div>
+
+                <div class="kanban-board">
+                    <div class="kanban-column" id="col-todo" data-status="todo">
+                        <div class="column-header">
+                            <div class="header-title">
+                                <span class="status-dot todo-dot"></span> Not Started
+                                <span class="task-count" id="count-todo">0</span>
+                            </div>
+                        </div>
+                        <div class="kanban-list drop-zone" id="list-todo"></div>
+                    </div>
+
+                    <div class="kanban-column" id="col-inprogress" data-status="inprogress">
+                        <div class="column-header">
+                            <div class="header-title">
+                                <span class="status-dot progress-dot"></span> In Progress
+                                <span class="task-count" id="count-inprogress">0</span>
+                            </div>
+                        </div>
+                        <div class="kanban-list drop-zone" id="list-inprogress"></div>
+                    </div>
+
+                    <div class="kanban-column" id="col-completed" data-status="completed">
+                        <div class="column-header">
+                            <div class="header-title">
+                                <span class="status-dot completed-dot"></span> Completed
+                                <span class="task-count" id="count-completed">0</span>
+                            </div>
+                        </div>
+                        <div class="kanban-list drop-zone" id="list-completed"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="focus-view" class="app-view hidden">
+                <div class="focus-container glass-panel">
+                    <div class="focus-header">
+                        <h2>Deep Focus Session</h2>
+                        <button id="exit-focus-btn" class="btn-ghost"><i class="ph ph-corners-in"></i> Exit Focus</button>
+                    </div>
+                    
+                    <div class="focus-task-selector">
+                        <p>Currently focusing on:</p>
+                        <select id="focus-task-select" class="glass-select large-select">
+                            <option value="">Select a task to focus on...</option>
+                        </select>
+                    </div>
+
+                    <div class="pomodoro-timer">
+                        <svg class="timer-ring" width="300" height="300">
+                            <circle class="timer-ring-bg" cx="150" cy="150" r="140"></circle>
+                            <circle class="timer-ring-progress" id="timer-progress" cx="150" cy="150" r="140"></circle>
+                        </svg>
+                        <div class="timer-display">
+                            <h1 id="time-left">25:00</h1>
+                            <p id="timer-mode">Focus Mode</p>
+                        </div>
+                    </div>
+
+                    <div class="timer-controls">
+                        <button id="timer-start" class="btn-primary large"><i class="ph-fill ph-play"></i> Start</button>
+                        <button id="timer-pause" class="btn-secondary large hidden"><i class="ph-fill ph-pause"></i> Pause</button>
+                        <button id="timer-reset" class="btn-icon large"><i class="ph ph-arrow-counter-clockwise"></i></button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="calendar-view" class="app-view hidden">
+                <div class="calendar-container glass-panel">
+                    <div class="calendar-header">
+                        <h2 id="calendar-month-year">Month Year</h2>
+                        <div class="calendar-nav">
+                            <button id="cal-prev" class="icon-btn"><i class="ph ph-caret-left"></i></button>
+                            <button id="cal-today" class="btn-secondary small">Today</button>
+                            <button id="cal-next" class="icon-btn"><i class="ph ph-caret-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="calendar-grid-header">
+                        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                    </div>
+                    <div class="calendar-grid" id="calendar-days">
+                        </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="task-modal" class="modal-overlay hidden" aria-modal="true" role="dialog">
+        <div class="modal-content glass-panel glow-border">
+            <div class="modal-header">
+                <h2 id="modal-title">Create New Task</h2>
+                <button id="close-modal-btn" class="icon-btn close-btn" aria-label="Close"><i class="ph ph-x"></i></button>
+            </div>
+            <form id="task-form">
+                <input type="hidden" id="task-id">
+                <div class="form-group full-width">
+                    <label for="task-title">Task Title</label>
+                    <input type="text" id="task-title" placeholder="What needs to be done?" required autofocus>
+                </div>
+                <div class="form-group full-width">
+                    <label for="task-desc">Description</label>
+                    <textarea id="task-desc" rows="3" placeholder="Add details, links, or notes..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-date">Due Date</label>
+                        <input type="date" id="task-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="task-time">Due Time</label>
+                        <input type="time" id="task-time">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-category">Category</label>
+                        <select id="task-category">
+                            <option value="Work">Work</option>
+                            <option value="Personal">Personal</option>
+                            <option value="Health">Health</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <div class="priority-selector">
+                            <input type="radio" name="priority" id="prio-low" value="low">
+                            <label for="prio-low" class="prio-btn low">Low</label>
+                            
+                            <input type="radio" name="priority" id="prio-medium" value="medium" checked>
+                            <label for="prio-medium" class="prio-btn medium">Med</label>
+                            
+                            <input type="radio" name="priority" id="prio-high" value="high">
+                            <label for="prio-high" class="prio-btn high">High</label>
+
+                            <input type="radio" name="priority" id="prio-critical" value="critical">
+                            <label for="prio-critical" class="prio-btn critical">Crit</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancel-task-btn" class="btn-secondary">Cancel</button>
+                    <button type="submit" id="save-task-btn" class="btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="name-prompt-modal" class="modal-overlay hidden" aria-modal="true" role="dialog">
+        <div class="modal-content glass-panel glow-border" style="text-align: center;">
+            <h2 style="margin-bottom: 1rem;">Welcome to Productivity OS</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">What should we call you?</p>
+            <form id="name-form" style="display: flex; flex-direction: column; align-items: center;">
+                <input type="text" id="user-name-input" placeholder="Enter your name" required style="width: 100%; text-align: center; margin-bottom: 1.5rem; font-size: 1.2rem;">
+                <button type="submit" class="btn-primary large">Enter OS</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+    <ul id="custom-context-menu" class="context-menu glass-panel hidden">
+        <li id="ctx-edit"><i class="ph ph-pencil-simple"></i> Edit Task</li>
+        <li id="ctx-focus"><i class="ph ph-target"></i> Send to Focus Mode</li>
+        <li class="divider"></li>
+        <li id="ctx-delete" class="danger"><i class="ph ph-trash"></i> Delete Task</li>
+    </ul>
+
+    <script src="script.js"></script>
+</body>
+</html>
